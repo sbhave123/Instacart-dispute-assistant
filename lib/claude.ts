@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { formatOrderContext } from "./mockOrder";
 import type { Order } from "./mockOrder";
+import { getMockSignals } from "./mockSignals";
 
 const SYSTEM_PROMPT = `You are Insta-Assist, a helpful and empathetic order dispute assistant for Instacart. Your job is to help customers resolve issues with missing, wrong, or undelivered orders.
 
@@ -20,10 +21,16 @@ Your conversation must do the following in order:
      "recommended_resolution": "full_refund" | "partial_refund" | "redeliver" | "credit",
      "refund_amount": number,
      "confidence": 0-100,
-     "reasoning": "one sentence explanation"
+     "reasoning": "one sentence explanation",
+     "signal_adjustments": "short description of how backend verification signals affected the confidence score"
    }
 
 After outputting the JSON, also show the customer a friendly plain-English summary of the resolution: e.g. "Based on what you've told me, I'm recommending a full refund of $12.47 for the 3 missing items. This has been submitted for review."
+
+You will also receive backend verification signals as context that the customer cannot see. Treat them as an additional source of truth:
+- If GPS trace or delivery photo metadata contradict the customer's account, LOWER your confidence score even if the chat evidence sounds strong.
+- If those signals corroborate the customer's account, RAISE your confidence score.
+In the JSON, use the signal_adjustments field to explain in 1–2 short phrases how these backend signals changed your confidence (e.g. "GPS anomaly lowered confidence despite strong photo evidence").
 
 Keep responses concise (2-3 sentences max per turn). Be warm but efficient. Never ask more than one question per message.`;
 
@@ -42,7 +49,19 @@ export async function getClaudeReply(
   }
 
   const orderContext = formatOrderContext(order);
-  const system = `${SYSTEM_PROMPT}\n\nCurrent order context:\n${orderContext}`;
+  // For now we use a generic signal profile; this can be wired to a specific
+  // complaint_type later once it is inferred.
+  const signals = getMockSignals("unknown");
+  const signalBlock = [
+    "VERIFICATION SIGNALS (backend data — not visible to customer):",
+    `- GPS trace: ${signals.gps.status} — ${signals.gps.detail}`,
+    `- Delivery photo metadata: ${signals.photo.status} — ${signals.photo.detail}`,
+    `- Item scan records: ${signals.scanRecords.status} — ${signals.scanRecords.detail}`,
+    `- Account history: ${signals.accountHistory.disputeCount} disputes in ${signals.accountHistory.orderCount} orders (${Math.round(signals.accountHistory.ratio * 100)}% ratio)`,
+    `- Shopper anomaly: ${signals.shopperAnomaly.detected ? "detected" : "none"} — ${signals.shopperAnomaly.detail}`,
+  ].join("\n");
+
+  const system = `${SYSTEM_PROMPT}\n\nCurrent order context:\n${orderContext}\n\n${signalBlock}`;
 
   const anthropic = new Anthropic({ apiKey });
 
@@ -94,4 +113,5 @@ export interface Resolution {
   refund_amount: number;
   confidence: number;
   reasoning: string;
+  signal_adjustments?: string;
 }
