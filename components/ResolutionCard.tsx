@@ -2,6 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import type { Resolution } from "@/lib/claude";
+import { getMockSignals } from "@/lib/mockSignals";
 import {
   Package,
   Truck,
@@ -9,6 +10,7 @@ import {
   AlertTriangle,
   DollarSign,
   CheckCircle2,
+  Minus,
 } from "lucide-react";
 
 const complaintIcons: Record<Resolution["complaint_type"], React.ReactNode> = {
@@ -51,6 +53,65 @@ export function ResolutionCard({
   isSubmitting = false,
   className,
 }: ResolutionCardProps) {
+  const signals = getMockSignals(resolution.complaint_type);
+
+  const signalItems = [
+    {
+      key: "gps",
+      label: "GPS trace",
+      status: signals.gps.status,
+      detail: signals.gps.detail,
+    },
+    {
+      key: "photo",
+      label: "Delivery photo metadata",
+      status: signals.photo.status,
+      detail: signals.photo.detail,
+    },
+    {
+      key: "scanRecords",
+      label: "Item scan records",
+      status: signals.scanRecords.status,
+      detail: signals.scanRecords.detail,
+    },
+    {
+      key: "accountHistory",
+      label: "Account history",
+      status:
+        signals.accountHistory.orderCount === 0
+          ? ("unavailable" as const)
+          : ("match" as const),
+      detail: `${signals.accountHistory.disputeCount} disputes in ${signals.accountHistory.orderCount} orders (${Math.round(
+        signals.accountHistory.ratio * 100
+      )}% ratio)`,
+    },
+    {
+      key: "shopperAnomaly",
+      label: "Shopper anomaly",
+      status: signals.shopperAnomaly.detected ? ("anomaly" as const) : ("match" as const),
+      detail: signals.shopperAnomaly.detail,
+    },
+  ];
+
+  const getSignalIconAndColor = (status: string) => {
+    if (status === "match" || status === "consistent" || status === "complete") {
+      return {
+        icon: <CheckCircle2 className="w-4 h-4" />,
+        className: "text-green-600",
+      };
+    }
+    if (status === "anomaly" || status === "mismatch" || status === "missing_items") {
+      return {
+        icon: <AlertTriangle className="w-4 h-4" />,
+        className: "text-amber-500",
+      };
+    }
+    return {
+      icon: <Minus className="w-4 h-4" />,
+      className: "text-gray-400",
+    };
+  };
+
   return (
     <div
       className={cn(
@@ -125,6 +186,38 @@ export function ResolutionCard({
         {resolution.reasoning && (
           <p className="text-sm text-gray-600 italic">&ldquo;{resolution.reasoning}&rdquo;</p>
         )}
+
+        <div className="pt-3 border-t border-gray-100 mt-2">
+          <div className="flex items-baseline justify-between mb-2">
+            <p className="text-xs font-medium text-gray-700 uppercase tracking-wide">
+              Backend signals checked
+            </p>
+            <p className="text-[11px] text-gray-400">
+              These signals are not visible to the customer.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+            {signalItems.map((s) => {
+              const { icon, className: iconClass } = getSignalIconAndColor(s.status);
+              return (
+                <div key={s.key} className="flex items-start gap-2">
+                  <span
+                    className={cn(
+                      "mt-0.5 inline-flex items-center justify-center rounded-full",
+                      iconClass
+                    )}
+                  >
+                    {icon}
+                  </span>
+                  <div>
+                    <p className="text-xs font-semibold text-gray-800">{s.label}</p>
+                    <p className="text-[11px] text-gray-500 mt-0.5">{s.detail}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       <div className="p-4 bg-gray-50 border-t border-gray-100">
