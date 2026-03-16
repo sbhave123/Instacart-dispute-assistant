@@ -8,8 +8,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChatBubble } from "@/components/ChatBubble";
 import { ResolutionCard } from "@/components/ResolutionCard";
 import { parseResolutionFromResponse, type Resolution } from "@/lib/claude";
-import { formatOrderContext } from "@/lib/mockOrder";
-import { mockOrder } from "@/lib/mockOrder";
+import {
+  formatOrderContext,
+  mockOrder,
+  DISPUTE_ORDER_STORAGE_KEY,
+} from "@/lib/mockOrder";
 
 const OPENING_MESSAGE =
   "I'm sorry to hear something went wrong. Can you tell me what happened with your order?";
@@ -26,16 +29,35 @@ function getMessageText(message: { parts: Array<{ type: string; text?: string }>
     .join("");
 }
 
+function getStoredOrderContext(): string {
+  if (typeof window === "undefined") return formatOrderContext(mockOrder);
+  try {
+    const s = window.sessionStorage.getItem(DISPUTE_ORDER_STORAGE_KEY);
+    if (s) {
+      const order = JSON.parse(s);
+      return formatOrderContext(order);
+    }
+  } catch {
+    // ignore
+  }
+  return formatOrderContext(mockOrder);
+}
+
 export default function DisputePage() {
   const router = useRouter();
   const [resolution, setResolution] = useState<Resolution | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const orderContextRef = useRef(getStoredOrderContext());
+
+  useEffect(() => {
+    orderContextRef.current = getStoredOrderContext();
+  }, []);
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/dispute",
-      body: { orderContext: formatOrderContext(mockOrder) },
+      body: { orderContext: orderContextRef.current },
     }),
     messages: [
       {
@@ -145,7 +167,12 @@ export default function DisputePage() {
 
       <div className="flex-shrink-0 p-4 bg-white border-t border-gray-100">
         <DisputeInput
-          onSend={(text) => sendMessage({ text })}
+          onSend={(text) =>
+            sendMessage({
+              text,
+              body: { orderContext: orderContextRef.current },
+            })
+          }
           disabled={isLoading}
         />
       </div>

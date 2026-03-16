@@ -1,3 +1,6 @@
+/** SessionStorage key used to pass order context from landing to dispute page. */
+export const DISPUTE_ORDER_STORAGE_KEY = "dispute-order";
+
 export interface LineItem {
   name: string;
   price: number;

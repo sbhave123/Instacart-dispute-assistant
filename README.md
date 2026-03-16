@@ -54,6 +54,31 @@ A PM portfolio prototype showing how AI can replace Instacart’s blunt complain
 - `lib/claude.ts` — Claude client and resolution parsing
 - `lib/mockOrder.ts` — Mock order data
 
+## Deploy to Vercel
+
+1. **Push your code to GitHub** (if you haven’t already):
+
+   ```bash
+   git add .
+   git commit -m "Ready for Vercel"
+   git push -u origin main
+   ```
+
+2. **Import the project on Vercel**
+   - Go to [vercel.com](https://vercel.com) and sign in (or create an account).
+   - Click **Add New… → Project** and import your GitHub repo (`sbhave123/Instacart-dispute-assistant`).
+   - Leave **Framework Preset** as Next.js and **Root Directory** blank. Click **Deploy**.
+
+3. **Add your API key**
+   - After the first deploy finishes, open your project on Vercel → **Settings → Environment Variables**.
+   - Add:
+     - **Name:** `ANTHROPIC_API_KEY`
+     - **Value:** your Anthropic API key (e.g. `sk-ant-api03-...`)
+     - **Environment:** Production (and optionally Preview if you want it for PRs).
+   - Click **Save**, then go to **Deployments**, open the **⋯** on the latest deployment, and choose **Redeploy** so the new env is used.
+
+4. **Done.** Your app will be live at `https://your-project.vercel.app`. The dispute chat and resolution flow will work once `ANTHROPIC_API_KEY` is set and redeployed.
+
 ## Design
 
 - Instacart orange `#FF6B00`, green `#003D29`
