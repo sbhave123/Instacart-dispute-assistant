@@ -48,7 +48,8 @@ export async function POST(req: Request) {
     const system = `${SYSTEM_PROMPT}\n\nCurrent order context:\n${context}`;
 
     const result = streamText({
-      model: anthropic("claude-sonnet-4-20250514"),
+      // Use a valid Claude Sonnet 4.6 model ID
+      model: anthropic("claude-sonnet-4-6"),
       system,
       messages: await convertToModelMessages(messages),
       maxOutputTokens: 1024,
