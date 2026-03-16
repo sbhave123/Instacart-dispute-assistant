@@ -48,16 +48,12 @@ export default function DisputePage() {
   const [resolution, setResolution] = useState<Resolution | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const orderContextRef = useRef(getStoredOrderContext());
-
-  useEffect(() => {
-    orderContextRef.current = getStoredOrderContext();
-  }, []);
+  const orderContext = getStoredOrderContext();
 
   const { messages, sendMessage, status } = useChat({
     transport: new DefaultChatTransport({
       api: "/api/dispute",
-      body: { orderContext: orderContextRef.current },
+      body: { orderContext },
     }),
     messages: [
       {
@@ -167,12 +163,7 @@ export default function DisputePage() {
 
       <div className="flex-shrink-0 p-4 bg-white border-t border-gray-100">
         <DisputeInput
-          onSend={(text) =>
-            sendMessage({
-              text,
-              body: { orderContext: orderContextRef.current },
-            })
-          }
+          onSend={(text) => sendMessage({ text })}
           disabled={isLoading}
         />
       </div>

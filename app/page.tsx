@@ -81,6 +81,14 @@ export default function HomePage() {
       </header>
 
       <div className="mx-auto w-full max-w-[430px] flex-1 flex flex-col px-4 py-6">
+        {/* Intro */}
+        <p className="text-sm text-gray-600 mb-4">
+          View your order below. If something went wrong—missing items, wrong
+          items, or delivery issues—tap <strong>Problem with this order?</strong> to
+          start a short chat with our assistant and get a resolution. You can
+          also try with your own order using the option below.
+        </p>
+
         {/* Mock data label and sample order */}
         <p className="text-xs font-medium text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 mb-3">
           Sample order (mock data) — for demo only
