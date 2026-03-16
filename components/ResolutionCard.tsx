@@ -53,6 +53,30 @@ export function ResolutionCard({
   isSubmitting = false,
   className,
 }: ResolutionCardProps) {
+  const confidence = resolution.confidence;
+
+  let confidenceLabel = "Manual review required";
+  let confidenceColor = "bg-red-500";
+  let confidenceExplanation =
+    "This case will be sent to a specialist for full manual review before any action is taken.";
+
+  if (confidence >= 75) {
+    confidenceLabel = "Auto-resolved";
+    confidenceColor = "bg-green-600";
+    confidenceExplanation =
+      "This case can be auto-resolved based on your report and backend signals.";
+  } else if (confidence >= 60) {
+    confidenceLabel = "Auto-resolved with monitoring";
+    confidenceColor = "bg-yellow-500";
+    confidenceExplanation =
+      "This case will be auto-resolved, but we’ll keep an eye on related activity for anomalies.";
+  } else if (confidence >= 40) {
+    confidenceLabel = "Routed to human agent";
+    confidenceColor = "bg-orange-500";
+    confidenceExplanation =
+      "A human agent will review this case shortly, using your report and backend signals.";
+  }
+
   const signals = getMockSignals(resolution.complaint_type);
 
   const signalItems = [
@@ -171,16 +195,25 @@ export function ResolutionCard({
         </div>
 
         <div>
-          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+          <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">
             Confidence
           </p>
+          <div className="flex items-center justify-between mb-1">
+            <p className="text-xs font-semibold text-gray-800">
+              {confidenceLabel}
+            </p>
+            <p className="text-xs text-gray-500">{confidence}%</p>
+          </div>
           <div className="h-2.5 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-instacart-green rounded-full transition-all duration-500"
-              style={{ width: `${resolution.confidence}%` }}
+              className={cn(
+                "h-full rounded-full transition-all duration-500",
+                confidenceColor
+              )}
+              style={{ width: `${confidence}%` }}
             />
           </div>
-          <p className="text-xs text-gray-500 mt-1">{resolution.confidence}%</p>
+          <p className="text-xs text-gray-500 mt-1">{confidenceExplanation}</p>
         </div>
 
         {resolution.reasoning && (
