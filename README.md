@@ -224,6 +224,6 @@ lib/
 
 ## Product Context
 
-This prototype was built as part of a PM application to Instacart. The FTC's $60M settlement with Instacart in December 2025 over opaque billing and satisfaction guarantees provides regulatory tailwind for a project like this — improving customer protection in dispute resolution is no longer just a retention play, it is a **compliance posture**.
+The FTC's $60M settlement with Instacart in December 2025 over opaque billing and satisfaction guarantees provides regulatory tailwind for a project like this — improving customer protection in dispute resolution is no longer just a retention play, it is a **compliance posture**.
 
 The core bet: **reliability and post-order experience are Instacart's last durable differentiator** as DoorDash Grocery, Amazon Fresh, and Shipt close the convenience gap. The moment a customer has a bad order is the highest-churn-risk moment — and it is currently handled worst.
