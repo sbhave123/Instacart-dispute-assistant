@@ -1,5 +1,6 @@
 # Smart Order Dispute Assistant
 https://instacart-dispute-assistant.vercel.app/
+PRD: [SmartDisputeAssistant_PRD.pdf](https://github.com/user-attachments/files/26040043/SmartDisputeAssistant_PRD.pdf)
 
 ## What This Is
 
