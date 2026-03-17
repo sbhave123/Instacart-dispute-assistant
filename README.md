@@ -182,13 +182,15 @@ cd instacart-dispute-assistant
 npm install
 ```
 
-Create a `.env.local` file in the root:
+Create a `.env.local` file in the root (this file is gitignored and must never be committed):
 
 ```
 ANTHROPIC_API_KEY=sk-ant-xxxxxxxxxxxxxxxx
 ```
 
 Get a key at [console.anthropic.com](https://console.anthropic.com). A full demo session costs less than $0.01.
+
+**Keep your key secret:** Never commit `.env.local` or paste your real key into the repo. For production (e.g. Vercel), set `ANTHROPIC_API_KEY` in the hosting dashboard’s environment variables only.
 
 ```bash
 npm run dev
@@ -224,3 +226,44 @@ lib/
 This prototype was built as part of a PM application to Instacart. The FTC's $60M settlement with Instacart in December 2025 over opaque billing and satisfaction guarantees provides regulatory tailwind for a project like this — improving customer protection in dispute resolution is no longer just a retention play, it is a **compliance posture**.
 
 The core bet: **reliability and post-order experience are Instacart's last durable differentiator** as DoorDash Grocery, Amazon Fresh, and Shipt close the convenience gap. The moment a customer has a bad order is the highest-churn-risk moment — and it is currently handled worst.
+
+---
+
+## Estimated Impact
+
+These are directional estimates built from public signals — not invented numbers. Every assumption is stated explicitly so the model can be stress-tested.
+
+### Sizing the affected customer base
+
+Instacart has publicly stated ~8M active customers. Industry data on grocery delivery suggests roughly 15–20% of orders have some kind of issue (missing item, wrong item, non-delivery):
+
+- ~8M customers × ~18% issue rate = **~1.4M affected customers/month**
+
+### Estimating the wrongly denied subset
+
+Instacart's complaint cap is the core dysfunction. Based on the volume of documented BBB and FTC complaints, a conservative assumption is that **20% of flagged complaints are legitimate customers being wrongly denied**:
+
+- ~1.4M × 20% = **~280K customers/month incorrectly denied**
+
+### Modeling the churn impact
+
+A wrongly denied customer is a high-churn customer. If 10% of them churn as a result:
+
+- ~280K × 10% churn = **~28K customers lost/month**
+
+Average Instacart customer LTV ≈ **$300**  
+($50 avg order × ~6 orders/year × ~1 year avg retention)
+
+- 28K × $300 = **~$8.4M/month in at-risk LTV**
+
+### Modeling the savings from improved accuracy
+
+If the dispute assistant improves correct resolution rate by **25%** — the core hypothesis:
+
+- 280K wrongly denied × 25% recovery = **~70K customers retained/month**
+- 70K × $300 LTV = **~$21M/month in protected customer LTV**
+
+### Assumptions & caveats
+
+These numbers are intentionally directional. The actual calibration would come from Instacart's internal dispute volume, churn attribution data, and observed LTV figures — none of which are public. The value of this model is not the output number; it is the reasoning structure, which would be validated and refined in the first weeks of the experiment using real data.
+
