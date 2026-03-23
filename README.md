@@ -80,7 +80,6 @@ Cases with confidence **≥ 75%** are auto-resolved. **60–74%** are auto-resol
 - It gives the ops team a **clear escalation trigger** without requiring them to review every case
 - It creates a **feedback loop**: human agents who override the AI recommendation on low-confidence cases generate labeled training data that improves the model over time
 
-In an interview, frame it this way: *"We're not replacing human judgment — we're reserving it for the cases that actually need it."*
 
 ---
 
@@ -113,12 +112,6 @@ Confidence = f(conversation_evidence, GPS_match, photo_metadata, scan_records, a
 A customer who says all the right things but whose shopper GPS places them at the delivery address for 4 minutes gets a **lower** confidence score than their chat account alone would suggest. A customer with a weak chat account but a delivery photo showing the wrong building gets a **higher** score. **The conversation is the front door; the backend signals are the verification layer.**
 
 In this prototype, the backend signals are **mocked**. In production, they would be pulled from Instacart's existing shopper telemetry, photo storage, and order management systems — none of which require new data collection, only new integration.
-
-### How to frame this in an interview
-
-*"The chat evidence alone is gameable, and I'd be skeptical of any system that relies on it exclusively. The confidence score in this prototype is designed to be a function of both what the customer says and what the system already knows — GPS, photo metadata, scan records, account history. A customer who says all the right things but whose shopper GPS places them at the address for 4 minutes gets a lower confidence score than one whose delivery photo shows the wrong building. The conversation is the intake; the backend signals are the verdict."*
-
-This is the strongest PM talking point in the project — it shows you anticipated the obvious attack on your own idea and designed a system that does not collapse under it.
 
 ---
 
@@ -166,7 +159,7 @@ Run these scenarios to exercise all branches of the dispute flow:
 - **Input:** "Something seems off with my order."
 - Provide no specifics when asked. Say you don't have a photo and can't remember which items.
 - **Verification signals:** GPS confirms delivery, photo metadata consistent, all items scanned. No corroborating signals.
-- **Expected output:** Evidence quality weak, credit rather than refund, confidence below 60% — triggering human review routing. **The most important test case for an interview:** demonstrates the system is not trivially gameable because backend signals contradict the vague account.
+- **Expected output:** Evidence quality weak, credit rather than refund, confidence below 60% — triggering human review routing.
 
 ### Test 5 · Damaged goods, no photo (moderate confidence)
 
